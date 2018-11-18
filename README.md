@@ -1,2 +1,2 @@
 # think-like-a-programmer
-Exercises for the Think Like A Programmer book by V. Anton Spraul
+Solutions using to problems described in the book Think Like A Programmer by V. Anton Spraul. Solutions use the Go programming language.

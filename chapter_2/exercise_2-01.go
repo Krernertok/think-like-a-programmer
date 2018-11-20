@@ -4,7 +4,9 @@ import (
 	"fmt"
 )
 
-// Produce the following output with nothing but the hash mark (#) and a newline character (\n).
+// Produce the following output with nothing but the hash mark (#), the space
+// ( ), and the newline character (\n):
+//
 // ########
 //  ######
 //   ####

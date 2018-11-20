@@ -2,7 +2,8 @@ package main
 
 import "fmt"
 
-// Produce a custom output with nothing but the hash mark (#), a space ( ) and a newline character (\n):
+// Produce the following output with nothing but the hash mark (#), the space
+// ( ), and the newline character (\n):
 //
 // #            #
 //  ##        ##

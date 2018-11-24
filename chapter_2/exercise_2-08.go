@@ -6,29 +6,7 @@ import (
 )
 
 func main() {
-	values := []int{359, 3, 774}
-	bases := []int{2, 16}
 
-	for _, base := range bases {
-		for _, value := range values {
-			valueString, _ := convertIntegerToString(value, base)
-			fmt.Printf("%d in base %d is '%s'\n", value, base, valueString)
-		}
-		fmt.Println("---")
-	}
-
-	strings := map[int][]string{
-		2:  []string{"101100111", "11", "1100000110"},
-		16: []string{"167", "3", "306"},
-	}
-
-	for base, values := range strings {
-		for _, valueString := range values {
-			valueInt, _ := convertStringToInt(valueString, base)
-			fmt.Printf("%s in base %d is '%d'\n", valueString, base, valueInt)
-		}
-		fmt.Println("---")
-	}
 }
 
 // convertIntegerToString returns the binary representation of an integer as a string
@@ -123,7 +101,6 @@ func getDigitInt(digit rune) (int, error) {
 	case 'f':
 		return 15, nil
 	}
-
 	return 0, fmt.Errorf("Not a valid digit: %v", digit)
 }
 

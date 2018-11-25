@@ -6,11 +6,45 @@ import (
 )
 
 func main() {
+	var number string
+	var baseFrom int
+	var baseTo int
 
+	fmt.Println("The number you want to convert followed by its base (2-16), ex. 101 2:")
+	fmt.Scanln(&number, &baseFrom)
+
+	if baseFrom > 16 || baseFrom < 0 {
+		fmt.Println("Base must be between 2 and 16.")
+		return
+	}
+
+	fmt.Println("The base you want to convert the number to (2-16):")
+	fmt.Scanln(&baseTo)
+
+	if baseTo > 16 || baseTo < 0 {
+		fmt.Println("Base must be between 2 and 16.")
+		return
+	}
+
+	numberInt, err := convertStringToInt(number, baseFrom)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	convertedNumber, err := convertIntToString(numberInt, baseTo)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Printf("%s (base %d) converted to base %d: %s\n", number, baseFrom, baseTo, convertedNumber)
 }
 
 // convertIntegerToString returns the binary representation of an integer as a string
-func convertIntegerToString(i, base int) (string, error) {
+func convertIntToString(i, base int) (string, error) {
 	binary := []string{}
 
 	for i > 0 {
@@ -27,81 +61,60 @@ func convertIntegerToString(i, base int) (string, error) {
 
 // getDigitString converts the remainder (int) to a string
 func getDigitString(remainder int) (string, error) {
-	switch remainder {
-	case 0:
-		return "0", nil
-	case 1:
-		return "1", nil
-	case 2:
-		return "2", nil
-	case 3:
-		return "3", nil
-	case 4:
-		return "4", nil
-	case 5:
-		return "5", nil
-	case 6:
-		return "6", nil
-	case 7:
-		return "7", nil
-	case 8:
-		return "8", nil
-	case 9:
-		return "9", nil
-	case 10:
-		return "a", nil
-	case 11:
-		return "b", nil
-	case 12:
-		return "c", nil
-	case 13:
-		return "d", nil
-	case 14:
-		return "e", nil
-	case 15:
-		return "f", nil
+	digits := []string{
+		"0",
+		"1",
+		"2",
+		"3",
+		"4",
+		"5",
+		"6",
+		"7",
+		"8",
+		"9",
+		"a",
+		"b",
+		"c",
+		"d",
+		"e",
+		"f",
 	}
 
-	return "", fmt.Errorf("Not a valid remainder: %v", remainder)
+	if remainder < 0 || remainder >= len(digits) {
+		return "", fmt.Errorf("Not a valid remainder: %v", remainder)
+	}
+
+	return digits[remainder], nil
 }
 
 // getDigitInt converts the digit rune to an integer
 func getDigitInt(digit rune) (int, error) {
-	switch digit {
-	case '0':
-		return 0, nil
-	case '1':
-		return 1, nil
-	case '2':
-		return 2, nil
-	case '3':
-		return 3, nil
-	case '4':
-		return 4, nil
-	case '5':
-		return 5, nil
-	case '6':
-		return 6, nil
-	case '7':
-		return 7, nil
-	case '8':
-		return 8, nil
-	case '9':
-		return 9, nil
-	case 'a':
-		return 10, nil
-	case 'b':
-		return 11, nil
-	case 'c':
-		return 12, nil
-	case 'd':
-		return 13, nil
-	case 'e':
-		return 14, nil
-	case 'f':
-		return 15, nil
+	digits := map[rune]int{
+		'0': 0,
+		'1': 1,
+		'2': 2,
+		'3': 3,
+		'4': 4,
+		'5': 5,
+		'6': 6,
+		'7': 7,
+		'8': 8,
+		'9': 9,
+		'a': 10,
+		'b': 11,
+		'c': 12,
+		'd': 13,
+		'e': 14,
+		'f': 15,
 	}
-	return 0, fmt.Errorf("Not a valid digit: %v", digit)
+
+	value, ok := digits[digit]
+
+	if !ok {
+		return 0, fmt.Errorf("Not a valid digit: %v", string(digit))
+	}
+
+	return value, nil
 }
 
 // getDecimal returns an integer from a binary number represented by a string
@@ -110,6 +123,10 @@ func convertStringToInt(b string, base int) (int, error) {
 
 	for i, v := range b {
 		digit, err := getDigitInt(v)
+
+		if digit > base-1 {
+			return 0, fmt.Errorf("Invalid digit in number %s base %d", b, base)
+		}
 
 		if err != nil {
 			return 0, err

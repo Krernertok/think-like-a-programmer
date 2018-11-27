@@ -4,8 +4,16 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 )
+
+type charCount struct {
+	char  string
+	count int
+}
+
+type byCount []charCount
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
@@ -20,6 +28,21 @@ func main() {
 	words := strings.Split(input, " ")
 	fmt.Println("Number of words in input:", len(words))
 
+	longestWord, maxChars := longestWordStats(words)
+
+	fmt.Println("Longest word:", longestWord)
+	fmt.Println("Total characters in longest word:", maxChars)
+	fmt.Println("---")
+
+	charCounts := charCountStats(words)
+
+	for i, charCount := range charCounts {
+		fmt.Printf("%d. Char %s appeared %d times.\n", i, charCount.char, charCount.count)
+	}
+
+}
+
+func longestWordStats(words []string) (string, int) {
 	var longestWord string
 	var maxChars int
 
@@ -31,6 +54,36 @@ func main() {
 		}
 	}
 
-	fmt.Println("Longest word:", longestWord, "Total characters:", maxChars)
-	fmt.Println("---")
+	return longestWord, maxChars
+}
+
+func charCountStats(words []string) []charCount {
+	var counts []charCount
+	hist := make(map[string]int)
+
+	for _, word := range words {
+		for _, char := range word {
+			hist[string(char)]++
+		}
+	}
+
+	for k, v := range hist {
+		counts = append(counts, charCount{k, v})
+	}
+
+	sort.Sort(byCount(counts))
+
+	return counts
+}
+
+func (b byCount) Len() int {
+	return len(b)
+}
+
+func (b byCount) Swap(i, j int) {
+	b[i], b[j] = b[j], b[i]
+}
+
+func (b byCount) Less(i, j int) bool {
+	return b[i].count > b[j].count
 }

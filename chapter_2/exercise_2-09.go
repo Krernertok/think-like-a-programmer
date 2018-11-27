@@ -26,20 +26,25 @@ func main() {
 	fmt.Println("---")
 
 	words := strings.Split(input, " ")
-	fmt.Println("Number of words in input:", len(words))
-
 	longestWord, maxChars := longestWordStats(words)
+	charCounts := charCountStats(words)
+	totalChars := 0
 
+	for _, charCount := range charCounts {
+		totalChars += charCount.count
+	}
+
+	fmt.Println("Number of words in input:", len(words))
 	fmt.Println("Longest word:", longestWord)
 	fmt.Println("Total characters in longest word:", maxChars)
+	fmt.Println("Total characters in input (excluding spaces):", totalChars)
 	fmt.Println("---")
-
-	charCounts := charCountStats(words)
 
 	for i, charCount := range charCounts {
 		fmt.Printf("%d. Char %s appeared %d times.\n", i, charCount.char, charCount.count)
 	}
 
+	fmt.Println("---")
 }
 
 func longestWordStats(words []string) (string, int) {

@@ -15,7 +15,7 @@ func main() {
 	highestMedian := 0
 	for _, salesPerPerson := range sales {
 		sort.Sort(monthlySales(salesPerPerson))
-
+		
 		// 12 months in total, so median is the average of the middle two months
 		median := (salesPerPerson[5] + salesPerPerson[6]) / 2
 		if median > highestMedian {

@@ -7,44 +7,14 @@ import (
 	"time"
 )
 
-var cypher = []rune{
-	'Z',
-	'Y',
-	'X',
-	'W',
-	'V',
-	'U',
-	'T',
-	'S',
-	'R',
-	'Q',
-	'P',
-	'O',
-	'N',
-	'M',
-	'L',
-	'K',
-	'J',
-	'I',
-	'H',
-	'G',
-	'F',
-	'E',
-	'D',
-	'C',
-	'B',
-	'A',
-}
+var cypher [26]rune
 
 func main() {
-
 	rand.Seed(time.Now().Unix())
 
 	input := "This text will be encoded."
 
-	rand.Shuffle(len(cypher), func(i, j int) {
-		cypher[i], cypher[j] = cypher[j], cypher[i]
-	})
+	randomizeCypher()
 
 	encoded := encode(input)
 	decoded := decode(encoded)
@@ -54,6 +24,20 @@ func main() {
 	fmt.Println(decoded)
 }
 
+func randomizeCypher() {
+	for i := 0; i < 26; i++ {
+		var index int
+		for {
+			r := rand.Int()
+			index = r % 26
+			if index != i && cypher[index] == 0 {
+				break
+			}
+		}
+		cypher[index] = rune(int('A') + i)
+	}
+}
+
 func encode(input string) string {
 	str := strings.ToUpper(input)
 	encodedChars := make([]rune, len(input))
@@ -61,6 +45,7 @@ func encode(input string) string {
 	for i, char := range str {
 		encodedChars[i] = encodeChar(char)
 	}
+
 	return string(encodedChars)
 }
 

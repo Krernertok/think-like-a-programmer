@@ -69,9 +69,9 @@ func main() {
 	cl.append('t')
 
 	cl2 := &charList{}
-	cl.append('n')
-	cl.append('a')
-	cl.append('p')
+	cl2.append('n')
+	cl2.append('a')
+	cl2.append('p')
 
 	cl.concatenate(*cl2)
 

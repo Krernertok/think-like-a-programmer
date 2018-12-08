@@ -39,7 +39,6 @@ func intToList(num int) *intList {
 
 func main() {
 	integer := intToList(123)
-
 	node := integer.firstNode
 
 	for node != nil {

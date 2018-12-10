@@ -34,7 +34,7 @@ func (l integerList) oddParity() bool {
 	return determineOddParity(l.firstNode)
 }
 
-func determineOddParity(n *integerNode) bool {
+func getOddParity(n *integerNode) bool {
 	if n == nil {
 		return false
 	}
@@ -45,7 +45,7 @@ func determineOddParity(n *integerNode) bool {
 		return oddParity
 	}
 
-	if determineOddParity(n.next) {
+	if getOddParity(n.next) {
 		return !oddParity
 	} else {
 		return oddParity

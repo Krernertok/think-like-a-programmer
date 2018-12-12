@@ -14,6 +14,7 @@ func iterativeCount(target int, numbers []int) int {
 	return count
 }
 
+// doesn't handle empty arrays
 func recursiveCount(target int, numbers []int) int {
 	length := len(numbers)
 	count := 0

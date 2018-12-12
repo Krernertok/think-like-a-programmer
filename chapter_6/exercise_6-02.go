@@ -14,6 +14,7 @@ func iterativeOddParity(b []int) bool {
 	return count%2 == 1
 }
 
+// Doesn't work with an empty array
 func recursiveOddParity(b []int) bool {
 	length := len(b)
 
@@ -31,9 +32,9 @@ func recursiveOddParity(b []int) bool {
 
 	if parityOfRest {
 		return b[length-1] != 1
-	} else {
-		return b[length-1] == 1
 	}
+
+	return b[length-1] == 1
 }
 
 func main() {

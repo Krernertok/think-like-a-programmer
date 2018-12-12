@@ -47,9 +47,9 @@ func getOddParity(n *integerNode) bool {
 
 	if getOddParity(n.next) {
 		return !oddParity
-	} else {
-		return oddParity
 	}
+
+	return oddParity
 }
 
 func main() {

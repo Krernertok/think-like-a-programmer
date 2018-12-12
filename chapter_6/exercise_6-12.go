@@ -34,6 +34,7 @@ func btAverage(n *intNode) (int, int) {
 	return sum, numTerms
 }
 
+// doesn't handle nil pointer
 func median(n *intNode) int {
 	values := intList(n)
 	sort.Ints(values)
@@ -41,9 +42,9 @@ func median(n *intNode) int {
 
 	if len(values)%2 == 0 {
 		return (values[midpoint] + values[midpoint-1]) / 2
-	} else {
-		return values[midpoint]
 	}
+
+	return values[midpoint]
 }
 
 func intList(n *intNode) []int {

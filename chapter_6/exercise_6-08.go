@@ -24,6 +24,7 @@ func (l *integerList) reverse() {
 }
 
 // Not really easier to solve recursively
+// Doesn't handle nil pointer
 func reverseNode(node, prev *integerNode) *integerNode {
 	temp := node.next
 	node.next = prev

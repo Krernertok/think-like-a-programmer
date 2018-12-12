@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
 
 type intNode struct {
 	value int
@@ -31,9 +34,65 @@ func btAverage(n *intNode) (int, int) {
 	return sum, numTerms
 }
 
-// func btMedian(n *intNode) int {}
+func median(n *intNode) int {
+	values := intList(n)
+	sort.Ints(values)
+	midpoint := len(values) / 2
 
-// func btMode(n *intNode) int {}
+	if len(values)%2 == 0 {
+		return (values[midpoint] + values[midpoint-1]) / 2
+	} else {
+		return values[midpoint]
+	}
+}
+
+func intList(n *intNode) []int {
+	values := []int{n.value}
+
+	if n.left != nil {
+		values = append(values, intList(n.left)...)
+	}
+
+	if n.right != nil {
+		values = append(values, intList(n.right)...)
+	}
+
+	return values
+}
+
+// n should not be nil
+func mode(n *intNode) int {
+	counts := recursiveCount(n)
+	value, count := 0, 0
+
+	for k, v := range counts {
+		if v > count {
+			value = k
+			count = v
+		}
+	}
+
+	return value
+}
+
+func recursiveCount(n *intNode) map[int]int {
+	counts := make(map[int]int)
+	counts[n.value]++
+
+	if n.left != nil {
+		for k, v := range recursiveCount(n.left) {
+			counts[k] += v
+		}
+	}
+
+	if n.right != nil {
+		for k, v := range recursiveCount(n.right) {
+			counts[k] += v
+		}
+	}
+
+	return counts
+}
 
 func main() {
 	// Binary search tree (BST)
@@ -54,5 +113,20 @@ func main() {
 	node10 := &intNode{10, nil, node14}
 	bst := &intNode{8, node3, node10}
 
-	fmt.Println("Average:", average(bst))
+	fmt.Println("Average:", average(bst)) // 7
+
+	node6.value = 1
+	node13.value = 2
+	node14.value = 2
+	node10.value = 2
+	fmt.Println("Mode:", mode(bst)) // 2
+	node6.value = 6
+	node13.value = 13
+	node14.value = 14
+	node10.value = 10
+
+	fmt.Println("Median:", median(bst)) // 7
+	// node14.left = nil
+	// fmt.Println("Median:", median(bst)) // 6
+
 }

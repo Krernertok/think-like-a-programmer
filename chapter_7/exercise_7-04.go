@@ -29,6 +29,17 @@ func newStudentCollection() *studentCollection {
 
 func (sc *studentCollection) addRecord(s studentRecord) {
 	bucketIndex := s.id % len(sc.buckets)
+	bucket := sc.buckets[bucketIndex]
+	elem := bucket.Front()
+
+	for elem != nil && elem.Value.(studentRecord).id != s.id {
+		elem = elem.Next()
+	}
+
+	if elem != nil && elem.Value.(studentRecord).id == s.id {
+		return
+	}
+
 	sc.buckets[bucketIndex].PushBack(s)
 }
 

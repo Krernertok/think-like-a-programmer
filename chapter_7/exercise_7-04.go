@@ -60,6 +60,11 @@ func main() {
 
 	for j := 0; j < 20; j++ {
 		id := rand.Int() % 10000
+
+		if id%2 == 0 {
+			id += 10000
+		}
+
 		student, ok := sc.getRecord(id)
 
 		fmt.Println("Looking for ID:", id)

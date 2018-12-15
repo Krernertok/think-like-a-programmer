@@ -9,9 +9,12 @@ const filepath = "/mnt/c/dev/goworkspace/src/github.com/krernertok/think-like-a-
 
 // GetWordlist returns a slice of string containing valid English words
 func GetWordlist() []string {
-	// - Open wordlist file
 	wordfile, err := os.Open(filepath)
-	check(err)
+
+	if err != nil {
+		panic(err)
+	}
+
 	defer wordfile.Close()
 
 	wordlist := make([]string, 0)
@@ -22,11 +25,4 @@ func GetWordlist() []string {
 	}
 
 	return wordlist
-}
-
-// helper for checking errors as seen on www.gobyexample.com
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
 }

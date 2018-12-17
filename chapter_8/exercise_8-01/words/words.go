@@ -35,19 +35,17 @@ func GetWordlist(wordLength int) []string {
 // FilterWords returns a slice of string containing the words that
 // include the letter (include = true) or do not contain the letter
 // (include = false).
-func FilterWords(words []string, letter rune, include bool) []string {
+func FilterWords(words []string, r rune, include bool) []string {
 	tempWords := make([]string, 0)
 
 	for _, word := range words {
-		containsLetter := strings.ContainsRune(word, letter)
+		containsLetter := strings.ContainsRune(word, r)
 
-		if include && !containsLetter {
-			continue
-		} else if !include && containsLetter {
-			continue
+		if include && containsLetter {
+			tempWords = append(tempWords, word)
+		} else if !include && !containsLetter {
+			tempWords = append(tempWords, word)
 		}
-
-		tempWords = append(tempWords, word)
 	}
 
 	return tempWords

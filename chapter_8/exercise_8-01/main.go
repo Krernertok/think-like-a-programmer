@@ -1,69 +1,78 @@
 package main
 
 import (
+	"fmt"
 	"github.com/krernertok/think-like-a-programmer/chapter_8/exercise_8-01/ui"
 	"github.com/krernertok/think-like-a-programmer/chapter_8/exercise_8-01/words"
 	"strings"
 )
 
+type gameState struct {
+	correctAnswer                  string
+	maxGuesses, wrongGuesses       int
+	wordlist                       []string
+	guessedLetters, correctLetters []rune
+}
+
 func main() {
-	wrongGuesses := 0
 	wordLength, maxGuesses := ui.Init()
 	wordlist := words.GetWordlist(wordLength)
+
+	cheatingHangman(wordlist, maxGuesses, wordLength)
+}
+
+func cheatingHangman(wordlist []string, maxGuesses, wordLength int) {
+	wrongGuesses := 0
 	guessedLetters := make([]rune, 0)
-	correctGuesses := make([]rune, wordLength)
-
-	for i := 0; i < wordLength; i++ {
-		correctGuesses[i] = 0
-	}
-
-	for true {
-		if wrongGuesses == maxGuesses {
-			ui.PlayerLoses()
-		}
-
-		var pattern []rune
-		ui.UpdateUI(wrongGuesses, maxGuesses, guessedLetters, correctGuesses)
-
-		nextLetter := ui.GetNextGuess()
-		guessedLetters = append(guessedLetters, nextLetter)
-
-		wordlist, pattern = words.GetUpdatedList(wordlist, nextLetter)
-		emptyPattern := []rune{}
-		numWords := len(wordlist)
-
-		if numWords == 1 {
-			break
-		}
-
-		if words.SamePattern(pattern, emptyPattern) {
-			wrongGuesses++
-			continue
-		}
-
-		correctGuesses = words.MergePatterns(pattern, correctGuesses)
-	}
-
-	correctAnswer := wordlist[0]
+	correctLetters := make([]rune, wordLength)
 
 	for wrongGuesses < maxGuesses {
-		if string(correctGuesses) == correctAnswer {
+		ui.UpdateUI(wrongGuesses, maxGuesses, guessedLetters, correctLetters)
+
+		nextLetter := ui.GetNextGuess()
+		fmt.Println("Debugging nextLetter:", nextLetter)
+		guessedLetters = append(guessedLetters, nextLetter)
+
+		var letterPattern []rune
+		wordlist, letterPattern = words.GetUpdatedList(wordlist, nextLetter)
+
+		if words.SamePattern(letterPattern, []rune{}) {
+			wrongGuesses++
+		} else {
+			correctLetters = words.MergePatterns(correctLetters, letterPattern)
+
+			if len(wordlist) == 1 {
+				regularHangman(
+					wordlist[0],
+					wrongGuesses,
+					maxGuesses,
+					guessedLetters,
+					correctLetters,
+				)
+			}
+		}
+
+	}
+	ui.PlayerLoses()
+}
+
+func regularHangman(correctAnswer string, wrongGuesses, maxGuesses int, guessedLetters, correctLetters []rune) {
+	for wrongGuesses < maxGuesses {
+		if string(correctLetters) == correctAnswer {
 			ui.PlayerWins(correctAnswer)
 		}
 
-		ui.UpdateUI(wrongGuesses, maxGuesses, guessedLetters, correctGuesses)
+		ui.UpdateUI(wrongGuesses, maxGuesses, guessedLetters, correctLetters)
 
 		nextLetter := ui.GetNextGuess()
 		guessedLetters = append(guessedLetters, nextLetter)
 
 		if strings.ContainsRune(correctAnswer, nextLetter) {
 			pattern := words.GetPattern(correctAnswer, nextLetter)
-			correctGuesses = words.MergePatterns(pattern, correctGuesses)
-			continue
+			correctLetters = words.MergePatterns(pattern, correctLetters)
+		} else {
+			wrongGuesses++
 		}
-
-		wrongGuesses++
 	}
-
 	ui.PlayerLoses()
 }

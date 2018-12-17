@@ -79,9 +79,8 @@ func GetNextGuess() rune {
 	for true {
 		scanner.Scan()
 		input := strings.ToLower(scanner.Text())
-		length := len(input)
 
-		if length != 1 {
+		if len(input) != 1 {
 			fmt.Println("Please enter a single letter!")
 			continue
 		}

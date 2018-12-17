@@ -1,38 +1,69 @@
 package main
 
 import (
-	"fmt"
 	"github.com/krernertok/think-like-a-programmer/chapter_8/exercise_8-01/ui"
 	"github.com/krernertok/think-like-a-programmer/chapter_8/exercise_8-01/words"
+	"strings"
 )
-
-// Parts:
-// - main function, keeps track of game state
-// - filtering -> wordlist
-// - UI
 
 func main() {
 	wrongGuesses := 0
 	wordLength, maxGuesses := ui.Init()
 	wordlist := words.GetWordlist(wordLength)
+	guessedLetters := make([]rune, 0)
+	correctGuesses := make([]rune, wordLength)
 
-	// guessedLetters := make([]rune, 0)
+	for i := 0; i < wordLength; i++ {
+		correctGuesses[i] = 0
+	}
+
+	for true {
+		if wrongGuesses == maxGuesses {
+			ui.PlayerLoses()
+		}
+
+		var pattern []rune
+		ui.UpdateUI(wrongGuesses, maxGuesses, guessedLetters, correctGuesses)
+
+		nextLetter := ui.GetNextGuess()
+		guessedLetters = append(guessedLetters, nextLetter)
+
+		wordlist, pattern = words.GetUpdatedList(wordlist, nextLetter)
+		emptyPattern := []rune{}
+		numWords := len(wordlist)
+
+		if numWords == 1 {
+			break
+		}
+
+		if words.SamePattern(pattern, emptyPattern) {
+			wrongGuesses++
+			continue
+		}
+
+		correctGuesses = words.MergePatterns(pattern, correctGuesses)
+	}
+
+	correctAnswer := wordlist[0]
 
 	for wrongGuesses < maxGuesses {
-		// update UI
+		if string(correctGuesses) == correctAnswer {
+			ui.PlayerWins(correctAnswer)
+		}
 
-		// get next guess from ui
-		// filter wordlist based on next guess
-		// if wordlist > 1
-		//	   update ui with guessed letters
-		//     loop
-		// else proceed to "normal" hangman loop
+		ui.UpdateUI(wrongGuesses, maxGuesses, guessedLetters, correctGuesses)
+
+		nextLetter := ui.GetNextGuess()
+		guessedLetters = append(guessedLetters, nextLetter)
+
+		if strings.ContainsRune(correctAnswer, nextLetter) {
+			pattern := words.GetPattern(correctAnswer, nextLetter)
+			correctGuesses = words.MergePatterns(pattern, correctGuesses)
+			continue
+		}
+
 		wrongGuesses++
 	}
 
-	filteredWords := words.FilterWords(wordlist, 'l', true)
-	for i := 0; i < len(filteredWords); i++ {
-		fmt.Println(filteredWords[i])
-	}
-
+	ui.PlayerLoses()
 }

@@ -53,20 +53,35 @@ func FilterWords(words []string, letter rune, include bool) []string {
 	return tempWords
 }
 
-// GetCommonestPattern returns a slice of string containing the words that
+// GetUpdatedList returns a slice of strings with an updated
+// word list based on the given letter and the letter pattern
+// used to filter the list.
+func GetUpdatedList(words []string, letter rune) ([]string, []rune) {
+	wordsWithoutLetter := FilterWords(words, letter, false)
+	wordsWithLetter := FilterWords(words, letter, true)
+	wordsWithCommonestPattern, pattern := getCommonestPattern(wordsWithLetter, letter)
+
+	if len(wordsWithoutLetter) >= len(wordsWithCommonestPattern) {
+		return wordsWithoutLetter, []rune{}
+	}
+
+	return wordsWithCommonestPattern, pattern
+}
+
+// getCommonestPattern returns a slice of string containing the words that
 // exhibit the most common pattern of the given letter in the given list
-// of words, as well as the pattern as a slice of rune.
-func GetCommonestPattern(originalWords []string, letter rune) ([]string, []rune) {
+// of words, as well as the most common pattern as a slice of rune.
+func getCommonestPattern(originalWords []string, letter rune) ([]string, []rune) {
 	var commonestPattern []rune
 	var patternCount int
 	words := originalWords
 
 	for len(words) > 0 {
-		count := 0
-		pattern := getPattern(words[0], letter)
+		count := 1
+		pattern := GetPattern(words[0], letter)
 
 		for _, word := range words[1:] {
-			if matchPattern(word, pattern) {
+			if matchPattern(word, pattern, letter) {
 				count++
 			}
 		}
@@ -76,15 +91,17 @@ func GetCommonestPattern(originalWords []string, letter rune) ([]string, []rune)
 			commonestPattern = pattern
 		}
 
-		words = filterPattern(words, pattern, false)
+		words = filterPattern(words, pattern, letter, false)
 	}
 
-	words = filterPattern(originalWords, commonestPattern, true)
+	words = filterPattern(originalWords, commonestPattern, letter, true)
 
 	return words, commonestPattern
 }
 
-func getPattern(s string, letter rune) []rune {
+// GetPattern returns the pattern of where the given rune appears in the
+// string.
+func GetPattern(s string, letter rune) []rune {
 	pattern := make([]rune, 0)
 
 	for _, r := range s {
@@ -100,10 +117,15 @@ func getPattern(s string, letter rune) []rune {
 	return pattern
 }
 
-func matchPattern(s string, pattern []rune) bool {
+func matchPattern(s string, pattern []rune, letter rune) bool {
 	for i, r := range pattern {
 		if r != 0 {
 			if rune(s[i]) != r {
+				return false
+			}
+
+		} else {
+			if rune(s[i]) == letter {
 				return false
 			}
 		}
@@ -112,16 +134,16 @@ func matchPattern(s string, pattern []rune) bool {
 	return true
 }
 
-func filterPattern(words []string, pattern []rune, include bool) []string {
+func filterPattern(words []string, pattern []rune, letter rune, include bool) []string {
 	filteredWords := make([]string, 0)
 
 	for _, word := range words {
 		if include {
-			if matchPattern(word, pattern) {
+			if matchPattern(word, pattern, letter) {
 				filteredWords = append(filteredWords, word)
 			}
 		} else {
-			if !matchPattern(word, pattern) {
+			if !matchPattern(word, pattern, letter) {
 				filteredWords = append(filteredWords, word)
 			}
 		}
@@ -129,4 +151,30 @@ func filterPattern(words []string, pattern []rune, include bool) []string {
 	}
 
 	return filteredWords
+}
+
+// SamePattern returns true if patterns are the same, false if not.
+func SamePattern(p1, p2 []rune) bool {
+	if len(p1) != len(p2) {
+		return false
+	}
+
+	for i, r := range p1 {
+		if r != p2[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
+// MergePatterns adds the runes in p1 into p2 according to their position
+// in p1. p1 may not be longer than p2
+func MergePatterns(p1, p2 []rune) []rune {
+	for i, r := range p1 {
+		if r != 0 {
+			p2[i] = r
+		}
+	}
+	return p2
 }

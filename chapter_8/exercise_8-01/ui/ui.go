@@ -70,8 +70,8 @@ func UpdateUI(wrongGuesses, maxGuesses int, guessedLetters, pattern []rune) {
 }
 
 // GetNextGuess returns the next character the player guesses.
-func GetNextGuess() rune {
-	var char rune
+func GetNextGuess(guessed []rune) rune {
+	var r rune
 	scanner := bufio.NewScanner(os.Stdin)
 
 	fmt.Println("Guess the next letter:")
@@ -85,17 +85,32 @@ func GetNextGuess() rune {
 			continue
 		}
 
-		char = rune(input[0])
+		r = rune(input[0])
 
-		if char < 'a' || char > 'z' {
+		if r < 'a' || r > 'z' {
 			fmt.Println("Please enter a letter!")
+			continue
+		}
+
+		if runeInSlice(r, guessed) {
+			fmt.Println("You've already guessed that letter! Try another one.")
 			continue
 		}
 
 		break
 	}
 
-	return char
+	return r
+}
+
+func runeInSlice(r rune, sr []rune) bool {
+	for _, rune := range sr {
+		if rune == r {
+			return true
+		}
+	}
+
+	return false
 }
 
 // PlayerWins prints the win screen

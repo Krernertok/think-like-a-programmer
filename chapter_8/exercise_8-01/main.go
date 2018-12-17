@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/krernertok/think-like-a-programmer/chapter_8/exercise_8-01/ui"
 	"github.com/krernertok/think-like-a-programmer/chapter_8/exercise_8-01/words"
 	"strings"
@@ -13,6 +12,9 @@ type gameState struct {
 	wordlist                       []string
 	guessedLetters, correctLetters []rune
 }
+
+// TODO:
+//	- pattern from []rune to []bool
 
 func main() {
 	wordLength, maxGuesses := ui.Init()
@@ -29,8 +31,7 @@ func cheatingHangman(wordlist []string, maxGuesses, wordLength int) {
 	for wrongGuesses < maxGuesses {
 		ui.UpdateUI(wrongGuesses, maxGuesses, guessedLetters, correctLetters)
 
-		nextLetter := ui.GetNextGuess()
-		fmt.Println("Debugging nextLetter:", nextLetter)
+		nextLetter := ui.GetNextGuess(guessedLetters)
 		guessedLetters = append(guessedLetters, nextLetter)
 
 		var letterPattern []rune
@@ -64,7 +65,7 @@ func regularHangman(correctAnswer string, wrongGuesses, maxGuesses int, guessedL
 
 		ui.UpdateUI(wrongGuesses, maxGuesses, guessedLetters, correctLetters)
 
-		nextLetter := ui.GetNextGuess()
+		nextLetter := ui.GetNextGuess(guessedLetters)
 		guessedLetters = append(guessedLetters, nextLetter)
 
 		if strings.ContainsRune(correctAnswer, nextLetter) {

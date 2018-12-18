@@ -1,29 +1,33 @@
 package main
 
 import (
+	"github.com/krernertok/think-like-a-programmer/chapter_8/exercise_8-01/player"
 	"github.com/krernertok/think-like-a-programmer/chapter_8/exercise_8-01/ui"
 	"github.com/krernertok/think-like-a-programmer/chapter_8/exercise_8-01/words"
+	"os"
 	"strings"
 )
 
-type gameState struct {
-	correctAnswer                  string
-	maxGuesses, wrongGuesses       int
-	wordlist                       []string
-	guessedLetters, correctLetters []rune
+func main() {
+	ui.Welcome()
+	initHangman()
 }
 
-// TODO:
-//	- pattern from []rune to []bool
-
-func main() {
-	wordLength, maxGuesses := ui.Init()
+func initHangman() {
+	var playerType player.Player
+	wordLength, maxGuesses, playerChoice := ui.Init()
 	wordlist := words.GetWordlist(wordLength)
 
-	cheatingHangman(wordlist, maxGuesses, wordLength)
+	if playerChoice == "human" {
+		playerType = player.HumanPlayer{}
+	} else {
+		playerType = player.CPUPlayer{}
+	}
+
+	cheatingHangman(wordlist, maxGuesses, wordLength, playerType)
 }
 
-func cheatingHangman(wordlist []string, maxGuesses, wordLength int) {
+func cheatingHangman(wordlist []string, maxGuesses, wordLength int, p player.Player) {
 	wrongGuesses := 0
 	guessedLetters := make([]rune, 0)
 	correctLetters := make([]rune, wordLength)
@@ -31,7 +35,7 @@ func cheatingHangman(wordlist []string, maxGuesses, wordLength int) {
 	for wrongGuesses < maxGuesses {
 		ui.UpdateUI(wrongGuesses, maxGuesses, guessedLetters, correctLetters)
 
-		nextLetter := ui.GetNextGuess(guessedLetters)
+		nextLetter := p.NextGuess(guessedLetters)
 		guessedLetters = append(guessedLetters, nextLetter)
 
 		var letterPattern []rune
@@ -49,23 +53,25 @@ func cheatingHangman(wordlist []string, maxGuesses, wordLength int) {
 					maxGuesses,
 					guessedLetters,
 					correctLetters,
+					p,
 				)
 			}
 		}
 
 	}
-	ui.PlayerLoses()
+
+	gameEnd(false, "")
 }
 
-func regularHangman(correctAnswer string, wrongGuesses, maxGuesses int, guessedLetters, correctLetters []rune) {
+func regularHangman(correctAnswer string, wrongGuesses, maxGuesses int, guessedLetters, correctLetters []rune, p player.Player) {
 	for wrongGuesses < maxGuesses {
 		if string(correctLetters) == correctAnswer {
-			ui.PlayerWins(correctAnswer)
+			gameEnd(true, correctAnswer)
 		}
 
 		ui.UpdateUI(wrongGuesses, maxGuesses, guessedLetters, correctLetters)
 
-		nextLetter := ui.GetNextGuess(guessedLetters)
+		nextLetter := p.NextGuess(guessedLetters)
 		guessedLetters = append(guessedLetters, nextLetter)
 
 		if strings.ContainsRune(correctAnswer, nextLetter) {
@@ -75,5 +81,13 @@ func regularHangman(correctAnswer string, wrongGuesses, maxGuesses int, guessedL
 			wrongGuesses++
 		}
 	}
-	ui.PlayerLoses()
+
+	gameEnd(false, "")
+}
+
+func gameEnd(playerWon bool, answer string) {
+	if ui.EndScreen(playerWon, answer) {
+		initHangman()
+	}
+	os.Exit(0)
 }

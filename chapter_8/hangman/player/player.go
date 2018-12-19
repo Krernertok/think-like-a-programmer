@@ -1,7 +1,7 @@
 package player
 
 import (
-	"github.com/krernertok/think-like-a-programmer/chapter_8/exercise_8-01/ui"
+	"github.com/krernertok/think-like-a-programmer/chapter_8/hangman/ui"
 	"time"
 )
 
@@ -16,6 +16,7 @@ type Player interface {
 	NextGuess([]rune) rune
 }
 
+// NextGuess for a human player, uses the UI to get the next letter
 func (HumanPlayer) NextGuess(guessed []rune) rune {
 	return ui.GetNextGuess(guessed)
 }
@@ -50,6 +51,7 @@ var guessOrder = []rune{
 	'q',
 }
 
+// NextGuess for the CPUPlayer returns the next letter in the guess order.
 func (CPUPlayer) NextGuess(guesses []rune) rune {
 	time.Sleep(time.Second)
 	index := len(guesses)

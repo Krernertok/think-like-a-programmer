@@ -3,7 +3,7 @@ package ui
 import (
 	"bufio"
 	"fmt"
-	"github.com/krernertok/think-like-a-programmer/chapter_8/exercise_8-01/config"
+	"github.com/krernertok/think-like-a-programmer/chapter_8/hangman/config"
 	"os"
 	"strconv"
 	"strings"
@@ -83,7 +83,7 @@ func getPlayerSelection() string {
 }
 
 // UpdateUI updates the user interface.
-func UpdateUI(wrongGuesses, maxGuesses int, guessedLetters, pattern []rune) {
+func UpdateUI(numGuesses int, guessedLetters, pattern []rune) {
 	var word []rune
 
 	for _, r := range pattern {
@@ -99,7 +99,7 @@ func UpdateUI(wrongGuesses, maxGuesses int, guessedLetters, pattern []rune) {
 	fmt.Println("---")
 	fmt.Println("Word:\t", string(word))
 	fmt.Println("Already guessed letters:", string(guessedLetters))
-	fmt.Println("Wrong guesses left:", (maxGuesses - wrongGuesses))
+	fmt.Println("Wrong guesses left:", numGuesses)
 }
 
 // GetNextGuess returns the next character the player guesses.

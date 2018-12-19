@@ -37,13 +37,13 @@ func cheatingHangman(wordlist []string, numGuesses, wordLength int, p player.Pla
 		nextLetter := p.NextGuess(guessedLetters)
 		guessedLetters = append(guessedLetters, nextLetter)
 
-		var letterPattern []rune
+		var letterPattern []bool
 		wordlist, letterPattern = words.GetUpdatedList(wordlist, nextLetter)
 
-		if words.SamePattern(letterPattern, []rune{}) {
+		if words.SamePattern(letterPattern, []bool{}) {
 			numGuesses--
 		} else {
-			correctLetters = words.MergePatterns(correctLetters, letterPattern)
+			correctLetters = words.AddLetterToAnswers(nextLetter, letterPattern, correctLetters)
 
 			if len(wordlist) == 1 {
 				regularHangman(
@@ -74,7 +74,7 @@ func regularHangman(correctAnswer string, numGuesses int, guessedLetters, correc
 
 		if strings.ContainsRune(correctAnswer, nextLetter) {
 			pattern := words.GetPattern(correctAnswer, nextLetter)
-			correctLetters = words.MergePatterns(pattern, correctLetters)
+			correctLetters = words.AddLetterToAnswers(nextLetter, pattern, correctLetters)
 		} else {
 			numGuesses--
 		}

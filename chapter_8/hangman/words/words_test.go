@@ -80,7 +80,7 @@ func TestFilterWords(t *testing.T) {
 func TestGetPattern(t *testing.T) {
 	s := "soliloquy"
 	letter := 'l'
-	expected := []rune{0, 0, 'l', 0, 'l', 0, 0, 0, 0}
+	expected := []bool{false, false, true, false, true, false, false, false, false}
 	pattern := GetPattern(s, letter)
 
 	if !patternsMatch(pattern, expected) {
@@ -94,15 +94,15 @@ func TestGetPattern(t *testing.T) {
 func TestMatchPattern(t *testing.T) {
 	s := "soliloquy"
 	letter := 'l'
-	pattern1 := []rune{0, 0, 'l', 0, 'l', 0, 0, 0, 0}
-	pattern2 := []rune{0, 0, 'l', 0, 'l', 0, 0, 0, 'l'}
+	pattern1 := []bool{false, false, true, false, true, false, false, false, false}
+	pattern2 := []bool{false, false, true, false, true, false, false, false, true}
 
 	if !matchPattern(s, pattern1, letter) {
-		t.Error("Expected", []rune(s), "to match pattern", pattern1)
+		t.Error("Expected", s, "to match pattern", pattern1, "with the letter", letter)
 	}
 
 	if matchPattern(s, pattern2, letter) {
-		t.Error("Did not expect", []rune(s), "to match pattern", pattern2)
+		t.Error("Did not expect", s, "to match pattern", pattern2, "with the letter", letter)
 	}
 }
 
@@ -127,7 +127,7 @@ func TestFilterOutPattern(t *testing.T) {
 	}
 
 	letter := 'l'
-	pattern := []rune{0, 0, 0, 0, 0, 'l', 0}
+	pattern := []bool{false, false, false, false, false, true, false}
 
 	words := filterPattern(originalWords, pattern, letter, true)
 
@@ -170,7 +170,7 @@ func TestGetCommonestPattern(t *testing.T) {
 		"whalery",
 	}
 
-	expectedPattern := []rune{0, 0, 0, 'l', 0, 0, 0}
+	expectedPattern := []bool{false, false, false, true, false, false, false}
 
 	wordlist, pattern := getCommonestPattern(words, letter)
 
@@ -209,7 +209,7 @@ func stringInSlice(str string, slice []string) bool {
 	return false
 }
 
-func patternsMatch(p1, p2 []rune) bool {
+func patternsMatch(p1, p2 []bool) bool {
 	if len(p1) != len(p2) {
 		return false
 	}
@@ -251,8 +251,8 @@ func TestGetUpdatedList(t *testing.T) {
 	updatedWords1, pattern1 := GetUpdatedList(words, letter1)
 	updatedWords2, pattern2 := GetUpdatedList(words, letter2)
 
-	expectedPattern1 := []rune{}
-	expectedPattern2 := []rune{0, 'h', 0, 0, 0, 0, 0}
+	expectedPattern1 := []bool{}
+	expectedPattern2 := []bool{false, true, false, false, false, false, false}
 
 	if !patternsMatch(pattern1, expectedPattern1) {
 		callError(t, expectedPattern1, pattern1)
@@ -285,8 +285,8 @@ func TestGetUpdatedList(t *testing.T) {
 }
 
 func TestSamePattern(t *testing.T) {
-	p1 := []rune{}
-	p2 := []rune{0, 0, 0, 'a', 0, 0, 0}
+	p1 := []bool{}
+	p2 := []bool{false, false, false, true, false, false, false}
 
 	if !SamePattern(p1, p1) {
 		t.Error("A pattern should be the same as itself.")
@@ -301,15 +301,30 @@ func TestSamePattern(t *testing.T) {
 	}
 }
 
-func TestMergePatterns(t *testing.T) {
-	p1 := []rune{'a', 'b', 'c', 0, 0}
-	p2 := []rune{0, 0, 0, 'x', 'y'}
-	expected := []rune{'a', 'b', 'c', 'x', 'y'}
-	mergedPattern := MergePatterns(p1, p2)
+func TestAddLetterToAnswers(t *testing.T) {
+	letter := 'a'
+	pattern := []bool{true, true, true, false, false}
+	answers := []rune{0, 0, 0, 'x', 'y'}
+	expected := []rune{'a', 'a', 'a', 'x', 'y'}
+	mergedPattern := AddLetterToAnswers(letter, pattern, answers)
 
-	if !SamePattern(mergedPattern, expected) {
+	if !sameSliceOfRune(mergedPattern, expected) {
 		callError(t, expected, mergedPattern)
 	}
+}
+
+func sameSliceOfRune(r1, r2 []rune) bool {
+	if len(r1) != len(r2) {
+		return false
+	}
+
+	for i, r := range r1 {
+		if r != r2[i] {
+			return false
+		}
+	}
+
+	return true
 }
 
 func callError(t *testing.T, expected, got interface{}) {

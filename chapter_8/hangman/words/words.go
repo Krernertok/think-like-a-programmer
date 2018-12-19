@@ -11,12 +11,11 @@ const filepath = "/mnt/c/dev/goworkspace/src/github.com/krernertok/think-like-a-
 // GetWordlist returns a slice of string containing valid English words
 func GetWordlist(wordLength int) []string {
 	wordfile, err := os.Open(filepath)
+	defer wordfile.Close()
 
 	if err != nil {
 		panic(err)
 	}
-
-	defer wordfile.Close()
 
 	wordlist := make([]string, 0)
 	scanner := bufio.NewScanner(wordfile)
@@ -54,13 +53,13 @@ func FilterWords(words []string, r rune, include bool) []string {
 // GetUpdatedList returns a slice of strings with an updated
 // word list based on the given letter and the letter pattern
 // used to filter the list.
-func GetUpdatedList(words []string, letter rune) ([]string, []rune) {
+func GetUpdatedList(words []string, letter rune) ([]string, []bool) {
 	wordsWithoutLetter := FilterWords(words, letter, false)
 	wordsWithLetter := FilterWords(words, letter, true)
 	wordsWithCommonestPattern, pattern := getCommonestPattern(wordsWithLetter, letter)
 
 	if len(wordsWithoutLetter) >= len(wordsWithCommonestPattern) {
-		return wordsWithoutLetter, []rune{}
+		return wordsWithoutLetter, []bool{}
 	}
 
 	return wordsWithCommonestPattern, pattern
@@ -69,8 +68,8 @@ func GetUpdatedList(words []string, letter rune) ([]string, []rune) {
 // getCommonestPattern returns a slice of string containing the words that
 // exhibit the most common pattern of the given letter in the given list
 // of words, as well as the most common pattern as a slice of rune.
-func getCommonestPattern(originalWords []string, letter rune) ([]string, []rune) {
-	var commonestPattern []rune
+func getCommonestPattern(originalWords []string, letter rune) ([]string, []bool) {
+	var commonestPattern []bool
 	var patternCount int
 	words := originalWords
 
@@ -99,40 +98,37 @@ func getCommonestPattern(originalWords []string, letter rune) ([]string, []rune)
 
 // GetPattern returns the pattern of where the given rune appears in the
 // string.
-func GetPattern(s string, letter rune) []rune {
-	pattern := make([]rune, 0)
+func GetPattern(s string, letter rune) []bool {
+	pattern := make([]bool, 0)
 
 	for _, r := range s {
-		var char rune
 		if r == letter {
-			char = letter
+			pattern = append(pattern, true)
 		} else {
-			char = 0
+			pattern = append(pattern, false)
 		}
-		pattern = append(pattern, char)
 	}
 
 	return pattern
 }
 
-func matchPattern(s string, pattern []rune, letter rune) bool {
-	for i, r := range pattern {
-		if r != 0 {
-			if rune(s[i]) != r {
-				return false
-			}
+func matchPattern(s string, pattern []bool, letter rune) bool {
+	for i, b := range pattern {
+		isMatch := rune(s[i]) == letter
 
-		} else {
-			if rune(s[i]) == letter {
-				return false
-			}
+		if b == true && !isMatch {
+			return false
+		}
+
+		if b == false && isMatch {
+			return false
 		}
 	}
 
 	return true
 }
 
-func filterPattern(words []string, pattern []rune, letter rune, include bool) []string {
+func filterPattern(words []string, pattern []bool, letter rune, include bool) []string {
 	filteredWords := make([]string, 0)
 
 	for _, word := range words {
@@ -152,7 +148,7 @@ func filterPattern(words []string, pattern []rune, letter rune, include bool) []
 }
 
 // SamePattern returns true if patterns are the same, false if not.
-func SamePattern(p1, p2 []rune) bool {
+func SamePattern(p1, p2 []bool) bool {
 	if len(p1) != len(p2) {
 		return false
 	}
@@ -166,13 +162,13 @@ func SamePattern(p1, p2 []rune) bool {
 	return true
 }
 
-// MergePatterns adds the runes in p1 into p2 according to their position
+// AddLetterToAnswers adds the runes in p1 into p2 according to their position
 // in p1. p1 may not be longer than p2
-func MergePatterns(p1, p2 []rune) []rune {
-	for i, r := range p1 {
-		if r != 0 {
-			p2[i] = r
+func AddLetterToAnswers(letter rune, pattern []bool, answers []rune) []rune {
+	for i, b := range pattern {
+		if b == true {
+			answers[i] = letter
 		}
 	}
-	return p2
+	return answers
 }

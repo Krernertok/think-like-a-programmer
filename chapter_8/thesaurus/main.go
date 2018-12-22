@@ -10,13 +10,9 @@ import (
 
 func main() {
 	thesaurus := generateThesaurus()
-	word := "book"
+	word := getWord()
 	synonyms := thesaurus.getSynonyms(word)
-	fmt.Println(synonyms[:10])
-	fmt.Println(thesaurus[word])
-
-	// read command argument(s) which should be a word or phrase
-	// return synonyms for the word/phrase
+	fmt.Println(synonyms)
 }
 
 func generateThesaurus() Thesaurus {
@@ -38,6 +34,25 @@ func generateThesaurus() Thesaurus {
 	}
 
 	return Thesaurus(thesaurus)
+}
+
+func getWord() string {
+	var word string
+	args := os.Args[1:]
+	numArgs := len(args)
+
+	if numArgs == 0 {
+		fmt.Println("Please provide a word as a argument, e.g. 'thesaurus book'")
+		os.Exit(0)
+	}
+
+	if numArgs == 1 {
+		word = args[0]
+	} else {
+		word = strings.Join(args, " ")
+	}
+
+	return word
 }
 
 // Thesaurus represents a map with string keys and slice of string values

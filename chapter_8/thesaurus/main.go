@@ -8,11 +8,53 @@ import (
 	"strings"
 )
 
-func main() {
-	thesaurus := generateThesaurus()
-	word := getWord()
-	synonyms := thesaurus.getSynonyms(word)
-	fmt.Println(synonyms)
+// Thesaurus represents a map with string keys and slice of string values
+type Thesaurus map[string][]string
+
+type synonym struct {
+	word      string
+	linkCount int
+}
+
+func (t Thesaurus) getSynonyms(word string) []string {
+	ranking := make(map[string]int)
+
+	synonyms := t[word]
+
+	for _, synonym := range synonyms {
+		ranking[synonym]++
+		secondarySynonyms := t[synonym]
+		for _, ss := range secondarySynonyms {
+			ranking[ss]++
+		}
+	}
+
+	rankedSynonyms := []synonym{}
+	for word, count := range ranking {
+		rankedSynonyms = append(rankedSynonyms, synonym{word, count})
+	}
+	sort.Sort(byLinkCount(rankedSynonyms))
+
+	result := []string{}
+	for _, s := range rankedSynonyms {
+		result = append(result, s.word)
+	}
+
+	return result
+}
+
+type byLinkCount []synonym
+
+func (b byLinkCount) Len() int {
+	return len(b)
+}
+
+func (b byLinkCount) Swap(i, j int) {
+	b[i], b[j] = b[j], b[i]
+}
+
+func (b byLinkCount) Less(i, j int) bool {
+	return b[i].linkCount > b[j].linkCount
 }
 
 func generateThesaurus() Thesaurus {
@@ -55,64 +97,16 @@ func getWord() string {
 	return word
 }
 
-// Thesaurus represents a map with string keys and slice of string values
-type Thesaurus map[string][]string
+func main() {
+	thesaurus := generateThesaurus()
+	word := getWord()
+	synonyms := thesaurus.getSynonyms(word)
 
-type synonym struct {
-	word      string
-	linkCount int
-}
-
-type byLinkCount []synonym
-
-func (b byLinkCount) Len() int {
-	return len(b)
-}
-
-func (b byLinkCount) Swap(i, j int) {
-	b[i], b[j] = b[j], b[i]
-}
-
-func (b byLinkCount) Less(i, j int) bool {
-	return b[i].linkCount > b[j].linkCount
-}
-
-func (t Thesaurus) getSynonyms(word string) []string {
-	ranking := make(map[string]int)
-	t.rankSynonyms(word, &ranking)
-
-	synonyms := []synonym{}
-	for k, v := range ranking {
-		synonyms = append(synonyms, synonym{k, v})
-	}
-	sort.Sort(byLinkCount(synonyms))
-
-	result := []string{}
-
-	for _, s := range synonyms {
-		result = append(result, s.word)
-	}
-
-	return result
-}
-
-func (t Thesaurus) rankSynonyms(word string, ranking *map[string]int) {
-	_, ranked := (*ranking)[word]
-
-	if !ranked {
-		(*ranking)[word] = 1
-	}
-
-	synonyms, found := t[word]
-	if !found {
-		return
-	}
-
-	for _, synonym := range synonyms {
-		_, keyExists := (*ranking)[synonym]
-		if !keyExists {
-			t.rankSynonyms(synonym, ranking)
-		}
-		(*ranking)[synonym]++
+	if len(synonyms) > 5 {
+		fmt.Println(synonyms[1:6])
+	} else if len(synonyms) == 2 {
+		fmt.Println(synonyms[1])
+	} else {
+		fmt.Println("No synonyms found.")
 	}
 }
